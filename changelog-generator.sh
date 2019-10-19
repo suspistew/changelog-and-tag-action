@@ -1,19 +1,17 @@
-#!/usr/bin/env bash
-
-get() {
-    mapName=$1; key=$2
-    map=${!mapName}
-    value="$(echo $map |sed -e "s/.*--${key}=\([^ ]*\).*/\1/" -e 's/:SP:/ /g' )"
-}
+#!/bin/bash
 
 last_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+remote=$(git config --get remote.origin.url)
+repository=$(basename "$(dirname "$remote")")/$(basename "$remote")
+
+git config user.email github-actions
+git config user.name github-actions
 
 if [ -z "$last_tag" ]; then
     echo "No last tag found, configuring for global log";
-    next_t="1.0.0"
     logs=$(git log --oneline)
 else
-    echo "Configuring git log from $last_tag";
+    echo "Configuring git log from last tag: $last_tag";
     logs=$(git log $last_tag..HEAD --oneline)
 fi
 
@@ -23,15 +21,15 @@ echo "found ${#splitted_logs[@]} logs"
 commit_types=("feat" "fix" "build" "ci" "docs" "perf" "refactor" "style" "test")
 
 declare -A commit_types_text
-commit_types_text["feat"]="New feature :tada:"
-commit_types_text["fix"]="Bug fixes :tada:"
-commit_types_text["build"]="Build improvements :tada:"
-commit_types_text["ci"]="Continuous integration improvements :tada:"
-commit_types_text["docs"]="Documentations :tada:"
-commit_types_text["perf"]="Performance improvements :tada:"
-commit_types_text["refactor"]="Refactoring :tada:"
-commit_types_text["style"]="New style :tada:"
-commit_types_text["test"]="Testing :tada:"
+commit_types_text["feat"]="New features :tada:"
+commit_types_text["fix"]="Bug fixes :bug:"
+commit_types_text["build"]="Build improvements :construction_worker:"
+commit_types_text["ci"]="Continuous integration improvements :wrench:"
+commit_types_text["docs"]="Documentations :page_facing_up:"
+commit_types_text["perf"]="Performance improvements :fire:"
+commit_types_text["refactor"]="Refactoring :repeat:"
+commit_types_text["style"]="New style :art:"
+commit_types_text["test"]="Testing :rocket:"
 
 declare -A sorted_logs
 declare -A sorted_logs_size
@@ -53,7 +51,7 @@ for (( i=0; i < ${#splitted_logs[@]}; i++ )); do
                 finded=1;
                 index=${sorted_logs_size[$j]}
                 let "sorted_logs_size[$j]++"
-                sorted_logs[$j,$index]="**${BASH_REMATCH[5]} :** ${BASH_REMATCH[7]}";
+                sorted_logs[$j,$index]="**${BASH_REMATCH[5]} :** ${BASH_REMATCH[7]} ([${BASH_REMATCH[1]}](https://github.com/$repository/commit/${BASH_REMATCH[1]}))";
                 echo "$log added to the changelog"
             else
                 let "j++"
@@ -78,15 +76,6 @@ done
 
 cat temp | cat - CHANGELOG.md >> temp2 && mv temp2 CHANGELOG.md
 rm temp
-
-git config user.email $GITHUB_MAIL
-git config user.name $GITHUB_USER
-
-remote=$(git config --get remote.origin.url)
-repository=$(basename "$(dirname "$remote")")/$(basename "$remote")
-branch=$(git branch | grep \* | cut -d ' ' -f2)
-
-echo "will push changelog on repository:$repository and branch:$branch"
 
 git add CHANGELOG.md
 git commit -m "Auto generated CHANGELOG"
