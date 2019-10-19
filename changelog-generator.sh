@@ -4,8 +4,17 @@ last_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
 remote=$(git config --get remote.origin.url)
 repository=$(basename "$(dirname "$remote")")/$(basename "$remote")
 
+regex_commit="([^ ].*)( {1})(.*)(\()([^ ].*)(\): )(.*)";
+regex_tag="([0-9]*)(\.)([0-9]*)(\.)([0-9]*)";
+commit_types=("feat" "fix" "build" "ci" "docs" "perf" "refactor" "style" "test")
+
 git config user.email github-actions
 git config user.name github-actions
+
+current_tag=0.0.0
+major=0
+minor=0
+patch=0
 
 if [ -z "$last_tag" ]; then
     echo "No last tag found, configuring for global log";
@@ -13,12 +22,34 @@ if [ -z "$last_tag" ]; then
 else
     echo "Configuring git log from last tag: $last_tag";
     logs=$(git log $last_tag..HEAD --oneline)
+    current_tag=$last_tag
+
+    if [[ $current_tag =~ $regex_tag ]]; then
+        major=${BASH_REMATCH[1}
+        minor=${BASH_REMATCH[3]}
+        patch=${BASH_REMATCH[5]}
+    else
+        echo "Your last tag doesn't respect the semantic versionning"
+        exit 0
+    fi
+    
 fi
+
+lastcommit=$(git log -n 1 --pretty=format:%s $(git rev-parse HEAD)) 
+
+case "$lastcommit" in \
+    *#major* ) let "major++";; 
+    *#minor* ) let "minor++";; 
+    *#patch* ) let "patch++";; 
+    * ) echo "last commit doesn't contains tag indicator, upgrading patch by default" && let "patch++";; 
+esac
+
+next_tag=$major.$minor.$patch
+
+echo "Next tag will be $next_tag"
 
 IFS=$'\n' read -rd '' -a splitted_logs <<<"$logs"
 echo "found ${#splitted_logs[@]} logs"
-
-commit_types=("feat" "fix" "build" "ci" "docs" "perf" "refactor" "style" "test")
 
 declare -A commit_types_text
 commit_types_text["feat"]="New features :tada:"
@@ -37,7 +68,7 @@ declare -A sorted_logs_size
 for (( i=0; i < ${#commit_types[@]}; i++ )); do
     sorted_logs_size[$i]=0
 done
-regex_commit="([^ ].*)( {1})(.*)(\()([^ ].*)(\): )(.*)";
+
 
 for (( i=0; i < ${#splitted_logs[@]}; i++ )); do
     log=${splitted_logs[i]}
@@ -65,6 +96,8 @@ for (( i=0; i < ${#splitted_logs[@]}; i++ )); do
     fi
 done;
 
+echo "# $major.$minor.$patch" >> temp2
+
 for (( i=0; i < ${#commit_types[@]}; i++ )); do
     if [[ ${sorted_logs_size[$i]} > 0 ]]; then
         echo "## ${commit_types_text[${commit_types[$i]}]}" >> temp
@@ -74,10 +107,23 @@ for (( i=0; i < ${#commit_types[@]}; i++ )); do
     fi
 done
 
+
+touch CHANGELOG.md
+
 cat temp | cat - CHANGELOG.md >> temp2 && mv temp2 CHANGELOG.md
-rm temp
+
+releaseContent=$(cat temp)
+releaseContent=${releaseContent//$'\n'/"\r\n"}
 
 git add CHANGELOG.md
 git commit -m "Auto generated CHANGELOG"
 git remote add upstreamSecured https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$repository
 git push -u upstreamSecured HEAD:${GITHUB_REF}
+
+
+body=$(printf $'{"tag_name": "%s","target_commitish": "%s","name": "%s","body": "%s","draft": false,"prerelease": false}' "$next_tag" "${GITHUB_REF}" "$next_tag" "$releaseContent")
+authorization=$(printf $'Authorization: token %s' $GITHUB_TOKEN)
+curl -v -X POST \
+  https://api.github.com/repos/$repository/releases \
+  -H $"$authorization" \
+  -d $"$body"
