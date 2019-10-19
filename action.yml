@@ -1,0 +1,9 @@
+name: 'Github Generate Changelog.md action'
+description: 'Generate, commit and push a changelog.md'
+author: 'Jeremy Thulliez'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'file-text'  
+  color: 'red'
