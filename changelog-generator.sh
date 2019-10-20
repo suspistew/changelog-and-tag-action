@@ -25,7 +25,7 @@ else
     current_tag=$last_tag
 
     if [[ $current_tag =~ $regex_tag ]]; then
-        major=${BASH_REMATCH[1}
+        major=${BASH_REMATCH[1]}
         minor=${BASH_REMATCH[3]}
         patch=${BASH_REMATCH[5]}
     else
@@ -38,8 +38,8 @@ fi
 lastcommit=$(git log -n 1 --pretty=format:%s $(git rev-parse HEAD)) 
 
 case "$lastcommit" in \
-    *#major* ) let "major++";; 
-    *#minor* ) let "minor++";; 
+    *#major* ) let "major++" && patch=0 && minor=0;; 
+    *#minor* ) let "minor++" && patch=0;; 
     *#patch* ) let "patch++";; 
     * ) echo "last commit doesn't contains tag indicator, upgrading patch by default" && let "patch++";; 
 esac
@@ -120,10 +120,13 @@ git commit -m "Auto generated CHANGELOG"
 git remote add upstreamSecured https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$repository
 git push -u upstreamSecured HEAD:${GITHUB_REF}
 
-
 body=$(printf $'{"tag_name": "%s","target_commitish": "%s","name": "%s","body": "%s","draft": false,"prerelease": false}' "$next_tag" "${GITHUB_REF}" "$next_tag" "$releaseContent")
 authorization=$(printf $'Authorization: token %s' $GITHUB_TOKEN)
 curl -v -X POST \
-  https://api.github.com/repos/$repository/releases \
-  -H $"$authorization" \
-  -d $"$body"
+https://api.github.com/repos/$repository/releases \
+-H $"$authorization" \
+-d $"$body"
+
+
+
+echo ::set-output name=NEW_TAG::$next_tag

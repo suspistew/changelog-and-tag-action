@@ -1,9 +1,12 @@
-name: 'Github Generate Changelog.md action'
-description: 'Generate, commit and push a changelog.md'
+name: 'Generate Changelog.md and release action'
+description: 'Generate, commit and push a changelog.md and tag'
 author: 'Jeremy Thulliez'
 runs:
   using: 'docker'
   image: 'Dockerfile'
+outputs:
+  NEW_TAG:
+    description: 'The new generated tag following semantic versionning'
 branding:
   icon: 'file-text'  
   color: 'red'
