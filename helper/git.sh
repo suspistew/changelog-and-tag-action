@@ -97,6 +97,7 @@ git config user.email github-actions
 git config user.name github-actions
 
 LAST_TAG=$(get_last_tag)
+LAST_TAG_DATE=$(git log -1 --pretty="format:%ad" --date=short "$LAST_TAG")
 REMOTE=$(git config --get remote.origin.url)
 REPOSITORY=$(basename "$(dirname "$REMOTE")")/$(basename "$REMOTE")
 git remote add upstreamSecured https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$REPOSITORY > /dev/null 2>&1
