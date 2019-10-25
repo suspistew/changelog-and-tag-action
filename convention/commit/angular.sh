@@ -20,7 +20,8 @@ function get_changelog_line_from_commit {
 }
 
 function create_changelog {
-    echo "# $NEXT_TAG" >> temp2
+    NOW=$(date '+%Y-%m-%d')
+    echo "# $NEXT_TAG ($NOW)" >> temp2
 
     for (( i=0; i < ${#COMMIT_TYPES[@]}; i++ )); do
         if [[ ${SORTED_LOGS_SIZES[$i]} > 0 ]]; then
