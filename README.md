@@ -1,28 +1,38 @@
-# Github Action - Generate CHANGELOG and tag release
 
-This Github Action (simply written in bash) :
-- Generates changelog content based on commit messages.
+#  :rocket: Generate CHANGELOG  and TAG  :newspaper: :bookmark:
+  <a href="https://twitter.com/zthulj" target="_blank">
+    <img alt="Twitter: zThulj" src="https://img.shields.io/twitter/follow/zthulj.svg?style=social" /></a>
+  
+
+This **Github Action** (simply written in bash to be as light as possible) :
+- Generates a changelog, based on commit messages and a commit message convention.
 - Push it to the current branch.
 - Tag a new release with the content of this release.
 
-## Usage
-### Pre-requisites
+## Usage 
+### :warning:  Pre-requisites 
 
 Your project has to respect two thing to use this action correctly : 
 - **Commit message convention :** Currently, the only supported commit convention is the angular one. See [Angular contributing](https://github.com/angular/angular/blob/master/CONTRIBUTING.md) for more informations.
 - **Semantic versionning :** At least your last tag has to respect the [Semantic versionning](https://semver.org/) convention, so the tagging system can increment the corresponding number.
 
-### Inputs
+###  :arrow_heading_down: Inputs 
 
-- **GITHUB_TOKEN :** A github generated token that will be used to commit/push the updated CHANGELOG.md and the tag
-- **GITHUB_USER :** The user linked to the token that will be used to commit/push the updated CHANGELOG.md and the tag
-- *(Optional)* **LOG_LEVEL :** The level of log you want to display in your task. (1=error, (default) 2=info, 3=debug)
+There is two **mandatory** env variables to set :
+
+- **GITHUB_TOKEN :** Oauth2 token that will be used to push changes to the repository.
+- **GITHUB_USER :** The user associated with the oauth2 token.
+
+And some **optionnals** so as to customise the action :
+- **LOG_LEVEL :** The level of log you want to display in your task. (**1**, **2** [default] or **3**)
 
 
-### Outputs
-- **NEW_TAG :** This will contain the new created tag, you then are able to make update on it further in your workflow
+### :arrow_heading_up: Outputs 
+- **NEW_TAG :** This will contain the new created tag (ex : 1.0.0)
 
-### Example
+###  :eyes: Example 
+
+Example of workflow.yml :
 
 ```yaml
 name: Java CI
@@ -48,9 +58,17 @@ jobs:
         GITHUB_USER: user
         LOG_LEVEL: 1
 ```
+## :bust_in_silhouette:  Author
 
-## License
+**Jérémy Thulliez**
+
+* Twitter: [@zthulj](https://twitter.com/zthulj)
+* Github: [@zthulj](https://github.com/zthulj)
+
+## 🤝 Contributing
+Contributions, issues and feature requests are welcome!<br/>Feel free to check [issues page](https://github.com/zthulj/changelog-and-tag-action/issues).
+
+Thanks to all our [contributors](https://github.com/zthulj/changelog-and-tag-action/graphs/contributors) !
+
+## :notebook: License
 The scripts and documentation in this project are released under the [MIT License](https://github.com/zthulj/changelog-and-tag-action/blob/master/LICENSE)
-
-
-
