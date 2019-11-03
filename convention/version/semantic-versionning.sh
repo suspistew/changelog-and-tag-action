@@ -14,7 +14,7 @@ function update_version {
             minor=${BASH_REMATCH[3]}
             patch=${BASH_REMATCH[5]}
         else
-            echo "Your last tag doesn't respect the semantic versionning, stopping now"
+            log_error "Your last tag doesn't respect the semantic versionning, stopping now"
             exit $ERROR_CODE
         fi
     fi
@@ -25,10 +25,10 @@ function update_version {
         *major* ) let "major++" && patch=0 && minor=0;; 
         *minor* ) let "minor++" && patch=0;; 
         *patch* ) let "patch++";; 
-        * ) echo "Didn't find one of {major,minor,patch} in your last commit. Stopping" && exit $ERROR_CODE;; 
+        * ) log_error "Didn't find one of {major,minor,patch} in your last commit. Stopping" && exit $ERROR_CODE;; 
     esac
 
     NEXT_TAG=$"$major.$minor.$patch"
-    echo "Next tag will be $NEXT_TAG"
+    log "Next tag will be $NEXT_TAG"
 
 }
