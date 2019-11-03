@@ -20,15 +20,27 @@ function get_changelog_line_from_commit {
 }
 
 function create_changelog {
+    debug "Starting the generation of the changelog"
+
+    touch this_release_changelog temp2
     NOW=$(date '+%Y-%m-%d')
     echo "# $NEXT_TAG ($NOW)" >> temp2
 
     for (( i=0; i < ${#COMMIT_TYPES[@]}; i++ )); do
         if [[ ${SORTED_LOGS_SIZES[$i]} > 0 ]]; then
+            debug "Section : ${COMMIT_TYPES_TEXT[${COMMIT_TYPES[$i]}]}"
             echo "## ${COMMIT_TYPES_TEXT[${COMMIT_TYPES[$i]}]}" >> this_release_changelog
             for (( j=0; j < ${SORTED_LOGS_SIZES[$i]}; j++ )); do
+                debug "Added ${SORTED_LOGS[$i,$j]}"
                 echo "- ${SORTED_LOGS[$i,$j]}" >> this_release_changelog
             done
         fi
     done
+
+    if [ $DEBUG_ENABLED ]; then 
+        debug "Content of the current generated changelog :"
+        debug "--START--"
+        cat this_release_changelog
+        debug "--END--"
+    fi
 }

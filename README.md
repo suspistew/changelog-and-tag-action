@@ -16,6 +16,7 @@ Your project has to respect two thing to use this action correctly :
 
 - **GITHUB_TOKEN :** A github generated token that will be used to commit/push the updated CHANGELOG.md and the tag
 - **GITHUB_USER :** The user linked to the token that will be used to commit/push the updated CHANGELOG.md and the tag
+- *(Optional)* **LOG_LEVEL :** The level of log you want to display in your task. (1=error, (default) 2=info, 3=debug)
 
 
 ### Outputs
@@ -45,6 +46,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_USER: user
+        LOG_LEVEL: 1
 ```
 
 ## License

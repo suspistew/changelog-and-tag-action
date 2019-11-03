@@ -2,6 +2,7 @@
 
 ERROR_CODE=147692
 
+source /helper/logging.sh
 source /helper/git.sh
 source /convention/commit/angular.sh
 source /convention/version/semantic-versionning.sh

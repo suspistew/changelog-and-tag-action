@@ -1,4 +1,5 @@
 #!/bin/bash
+
 function get_last_tag {
     taglist=$(git rev-list --tags --max-count=1)
     if [ -z "$taglist" ]; then
@@ -14,16 +15,18 @@ function get_last_commit {
 
 function read_commit_messages {
     if [ -z "$LAST_TAG" ]; then
-        echo "No last tag found, configuring for global log";
+        log "No last tag found, configuring for global log";
         COMMIT_MESSAGES=$(git log --oneline)
     else
-        echo "Configuring git log from last tag: $LAST_TAG";
+        log "Configuring git log from last tag: $LAST_TAG";
         COMMIT_MESSAGES=$(git log $LAST_TAG..HEAD --oneline)    
     fi
+    log "Last commit message found is : $COMMIT_MESSAGE"
 }
 
 function split_commit_messages {
-    IFS=$'\n' read -rd '' -a SPLITTED_LOGS <<<"$COMMIT_MESSAGES" && echo "found ${#SPLITTED_LOGS[@]} logs"
+    IFS=$'\n' read -rd '' -a SPLITTED_LOGS <<<"$COMMIT_MESSAGES" && log "found ${#SPLITTED_LOGS[@]} logs"
+    debug "There are ${#SPLITTED_LOGS[@]} commit since the last tag"
 }
 
 function sort_commit_messages {
@@ -45,16 +48,16 @@ function sort_commit_messages {
                     index=${SORTED_LOGS_SIZES[$j]}
                     let "SORTED_LOGS_SIZES[$j]++"
                     SORTED_LOGS[$j,$index]=$(get_changelog_line_from_commit)
-                    echo "$log added to the changelog"
+                    log "$log added to the changelog"
                 else
                     let "j++"
                 fi
             done
             if [[ $finded = 0 ]]; then 
-                echo "$log doesn't match the commit message pattern and won't be part of the changelog.md"
+                log "$log doesn't match the commit message pattern and won't be part of the changelog.md"
             fi
         else
-            echo "$log doesn't match the commit message pattern and won't be part of the changelog.md"
+            log "$log doesn't match the commit message pattern and won't be part of the changelog.md"
         fi
     done;
 
@@ -62,8 +65,11 @@ function sort_commit_messages {
 }
 
 function read_and_sort_last_commit_messages {
+    debug "Start to read commit messages"
     read_commit_messages
+    debug "Splitting last commit messages"
     split_commit_messages
+    debug "Sorting last commit messages"
     sort_commit_messages
 }
 
