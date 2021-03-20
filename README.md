@@ -1,7 +1,7 @@
 
 #  :rocket: Generate CHANGELOG  and TAG  :newspaper: :bookmark:
-  <a href="https://twitter.com/zthulj" target="_blank">
-    <img alt="Twitter: zThulj" src="https://img.shields.io/twitter/follow/zthulj.svg?style=social" /></a>
+  <a href="https://twitter.com/JeremyThulliez" target="_blank">
+    <img alt="Twitter: grzi" src="https://img.shields.io/twitter/follow/grzi.svg?style=social" /></a>
   
 
 This **Github Action** (simply written in bash to be as light as possible) :
